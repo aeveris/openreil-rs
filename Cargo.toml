@@ -1,0 +1,8 @@
+[package]
+name = "openreil"
+version = "0.1.0"
+authors = ["Jonas Großmann <jonas.github@naevius.de>"]
+
+[dependencies]
+openreil-sys = { git = "https://github.com/aeveris/openreil-sys" }
+libc = "*"
