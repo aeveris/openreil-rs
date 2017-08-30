@@ -193,7 +193,7 @@ impl ReilArg for reil_arg_t {
             return None;
         }
         let chars = self.name.iter()
-            .take_while(|&b| b as u8 != 0)
+            .take_while(|&b| *b as u8 != 0)
             .map(|&b| b as u8)
             .collect();
 
