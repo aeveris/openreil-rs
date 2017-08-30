@@ -183,7 +183,7 @@ impl ReilArg for reil_arg_t {
 
     fn val(&self) -> Option<u64> {
         match self.arg_type() {
-            reil_type_t::A_CONST => Some(self.val as u64),
+            reil_type_t::A_CONST | reil_type_t::A_LOC => Some(self.val as u64),
             _ => None,
         }
     }
@@ -192,10 +192,11 @@ impl ReilArg for reil_arg_t {
         if self.arg_type() == reil_type_t::A_NONE {
             return None;
         }
-        let mut chars = vec![0u8; 15];
-        for (src, dst) in self.name.iter().zip(chars.iter_mut()) {
-            *dst = *src as u8;
-        }
+        let chars = self.name.iter()
+            .take_while(|&b| b as u8 != 0)
+            .map(|&b| b as u8)
+            .collect();
+
         String::from_utf8(chars).ok()
     }
 }
