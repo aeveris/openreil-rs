@@ -117,6 +117,7 @@ pub trait ReilInst {
     fn second_operand(&self) -> Option<reil_arg_t>;
     fn third_operand(&self) -> Option<reil_arg_t>;
     fn opcode(&self) -> reil_op_t;
+    fn mnemonic(&self) -> Option<String>;
 }
 
 impl ReilInst for reil_inst_t {
@@ -163,6 +164,32 @@ impl ReilInst for reil_inst_t {
     fn opcode(&self) -> reil_op_t {
         self.op
     }
+
+    fn mnemonic(&self) -> Option<String> {
+        let raw_info = self.raw_info;
+        let mnem = raw_info.str_mnem as *const libc::c_schar;
+        let op = raw_info.str_op as *const libc::c_schar;
+
+        if mnem.is_null() || op.is_null() {
+            return None;
+        }
+
+        let mut mnem_bytes = Vec::new();
+        unsafe {
+            for i in 0.. {
+                if *mnem.offset(i) == 0 { break }
+                let byte = *mnem.offset(i) as u8;
+                mnem_bytes.push(byte);
+            }
+            mnem_bytes.push(' ' as u8);
+            for i in 0.. {
+                if *op.offset(i) == 0 { break }
+                let byte = *op.offset(i) as u8;
+                mnem_bytes.push(byte);
+            }
+        }
+        String::from_utf8(mnem_bytes).ok()
+    }
 }
 
 pub trait ReilArg {
@@ -170,6 +197,7 @@ pub trait ReilArg {
     fn size(&self) -> reil_size_t;
     fn val(&self) -> Option<u64>;
     fn name(&self) -> Option<String>;
+    fn inum(&self) -> u64;
 }
 
 impl ReilArg for reil_arg_t {
@@ -198,5 +226,9 @@ impl ReilArg for reil_arg_t {
             .collect();
 
         String::from_utf8(chars).ok()
+    }
+
+    fn inum(&self) -> u64 {
+        self.inum as u64
     }
 }
